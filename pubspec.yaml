@@ -23,11 +23,19 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
-
+  # 企业级路由
+  fluro: ^1.6.3
+  # 日期格式化
+  date_format: ^1.0.4
+  # 网络请求库
+  dio: ^3.0.9
+  # 动态管理
+  provider: ^5.0.0
+  # 刷新加载数据
+  flutter_easyrefresh: ^1.2.7
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^1.0.2
+  cupertino_icons: ^0.1.2
 
 dev_dependencies:
   flutter_test:
