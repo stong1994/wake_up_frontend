@@ -1,8 +1,8 @@
 // 上报分组返回数据模型
 class ReportGroupListModel {
-  int code;
-  String message;
-  List<ReportGroupModel> data;
+  int code = 0;
+  String message = '';
+  List<ReportGroupModel> data = [];
 
   ReportGroupListModel(this.data);
 
@@ -20,11 +20,11 @@ class ReportGroupListModel {
 
 // 上报分组数据模型
 class ReportGroupModel {
-  String id;
-  String name;
-  int count;
+  String id = '';
+  String name = '';
+  int count = 0;
 
-  ReportGroupModel({this.id, this.name});
+  ReportGroupModel({this.id = '', this.name = ''});
 
   ReportGroupModel.fromJson(Map<String, dynamic> json) {
     id = json['group_id'];

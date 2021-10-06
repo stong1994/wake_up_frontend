@@ -13,9 +13,13 @@ Handler rootHandler = Handler(
 // 反思详情路由Handler返回反思详情页面
 Handler rethinkDetailHandler = Handler(
     handlerFunc: (BuildContext context, Map<String, List<String>> params) {
-  String reportID = params['reportID'].first;
-  String rethinkID = params['rethinkID'].first;
-  String content = params['content'].first;
-  int createTime = int.parse(params['createTime'].first);
+  var reportIDs = params['reportID'];
+  String reportID = reportIDs != null ? reportIDs.first : '';
+  var rethinkIDs = params['rethinkID'];
+  String rethinkID = rethinkIDs != null ? rethinkIDs.first : '';
+  var contents = params['content'];
+  String content = contents != null ? contents.first : '';
+  var times = params['createTime'];
+  int createTime = int.parse((times != null ? times.first : '0'));
   return RethinkDetail(reportID, rethinkID, content, createTime);
 });

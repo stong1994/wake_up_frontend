@@ -3,10 +3,8 @@ import 'package:flutter/material.dart';
 
 import 'route_handler.dart';
 
-final router = FluroRouter();
-
 class Routes {
-  static void init() {
+  static void configureRoutes(FluroRouter router) {
     // 路径没有找到Handler
     router.notFoundHandler = Handler(
         handlerFunc: (BuildContext context, Map<String, List<String>> params) {

@@ -5,7 +5,7 @@ import 'package:flutter_easyrefresh/easy_refresh.dart';
 import 'package:provider/provider.dart';
 import 'package:wake_up/model/report_group.dart';
 import 'package:wake_up/provider/report_group_list.dart';
-import 'package:wake_up/router/routes.dart';
+import 'package:wake_up/router/application.dart';
 import 'package:wake_up/service/http_service.dart';
 import 'package:wake_up/style/color.dart';
 import 'package:wake_up/style/font.dart';
@@ -21,7 +21,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  List<Button> buttonsList;
+  List<Button> buttonsList = [];
 
   @override
   void initState() {
@@ -66,55 +66,57 @@ class _HomePageState extends State<HomePage> {
           title: Text("人生就是一场梦醒"),
         ),
         body: Column(
+          mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             Consumer<ReportGroupProvider>(
-                // 使用Consumer获取ReportGroupProvider对象
-                builder: (BuildContext ctx, ReportGroupProvider groupProvider,
-                    Widget child) {
-              //获取分组列表数据
-              List<ReportGroupModel> groupList = groupProvider.groupList;
-              // 判断是否有数据
-              if (groupList.length > 0) {
-                return Container(
-                  width: 400,
-                  //加载刷新组件
-                  child: EasyRefresh(
-                    //底部上拉加载处理
-                    refreshFooter: ClassicsFooter(
-                      key: footerKey,
-                      bgColor: Colors.white,
-                      textColor: Color.fromRGBO(132, 95, 63, 1.0),
-                      moreInfoColor: Color.fromRGBO(132, 95, 63, 1.0),
-                      showMore: true,
-                      noMoreText: '加载更多',
-                      moreInfo: '加载中',
-                      //'加载中',
-                      loadReadyText: '上拉加载', //'上拉加载',
-                    ),
-                    //数据列表
-                    child: ListView.builder(
-                      //滚动控制
-                      controller: scrollController,
-                      //列表长度
-                      itemCount: groupList.length,
-                      //列表项构造器
-                      itemBuilder: (context, index) {
-                        //列表项
-                        return _ListWidget(groupList, index);
-                      },
-                    ),
-                    //加载更多
-                    loadMore: () async {
-                      getReportGroupList(true);
-                    },
-                  ),
-                );
-              } else {
+              // 使用Consumer获取ReportGroupProvider对象
+              builder: (_, ReportGroupProvider groupProvider, __) {
+                //获取分组列表数据
+                List<ReportGroupModel> groupList = groupProvider.groupList;
+                // 判断是否有数据
+                if (groupList.length > 0) {
+                  return Flexible(
+                      fit: FlexFit.loose,
+                      child: Container(
+                        width: 400,
+                        //加载刷新组件
+                        child: EasyRefresh(
+                          //底部上拉加载处理
+                          refreshFooter: ClassicsFooter(
+                            key: footerKey,
+                            bgColor: Colors.white,
+                            textColor: Color.fromRGBO(132, 95, 63, 1.0),
+                            moreInfoColor: Color.fromRGBO(132, 95, 63, 1.0),
+                            showMore: true,
+                            noMoreText: '加载更多',
+                            moreInfo: '加载中',
+                            //'加载中',
+                            loadReadyText: '上拉加载', //'上拉加载',
+                          ),
+                          //数据列表
+                          child: ListView.builder(
+                            //滚动控制
+                            controller: scrollController,
+                            //列表长度
+                            itemCount: groupList.length,
+                            //列表项构造器
+                            itemBuilder: (context, index) {
+                              //列表项
+                              return _ListWidget(groupList, index);
+                            },
+                          ),
+                          //加载更多
+                          loadMore: () async {
+                            getReportGroupList(true);
+                          },
+                        ),
+                      ));
+                }
                 return Text("无数据");
-              }
-            })
+              },
+            )
           ],
         ));
   }
@@ -127,7 +129,8 @@ class _HomePageState extends State<HomePage> {
     return InkWell(
       onTap: () {
         //路由跳转至产品详情页
-        router.navigateTo(context, "/report/group/detail?group_id=${item.id}");
+        Application.router
+            .navigateTo(context, "/report/group/detail?group_id=${item.id}");
       },
       //列表项背景
       child: Container(

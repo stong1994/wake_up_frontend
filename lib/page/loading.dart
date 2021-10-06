@@ -1,6 +1,8 @@
 import 'dart:async';
 
+import 'package:fluro/fluro.dart';
 import 'package:flutter/material.dart';
+import 'package:wake_up/router/application.dart';
 import 'package:wake_up/router/routes.dart';
 
 // 启动App加载页面
@@ -13,11 +15,16 @@ class _LoadingState extends State<LoadingPage> {
   @override
   void initState() {
     super.initState();
+
+    final router = FluroRouter();
+    Routes.configureRoutes(router);
+    Application.router = router;
+
     // 加载页面停留2秒
     Future.delayed(Duration(seconds: 2), () {
       print('企业站启动');
       // 使用路由跳转至路由主界面
-      router.navigateTo(context, "/");
+      Application.router.navigateTo(context, "/");
     });
   }
 
