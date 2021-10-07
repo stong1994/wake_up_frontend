@@ -11,6 +11,98 @@ import 'package:wake_up/service/http_service.dart';
 import '../conf/configure.dart';
 import 'button.dart';
 
+// 分组列表项
+Widget _groupListWidget(List<ReportGroupModel> groupList) {
+  return Column(
+    mainAxisAlignment: MainAxisAlignment.start,
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: <Widget>[
+      Expanded(
+          child: GridView.builder(
+              padding: const EdgeInsets.all(10.0),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3,
+                  childAspectRatio: 1.0,
+                  crossAxisSpacing: 9.0,
+                  mainAxisSpacing: 9.0),
+              itemCount: groupList.length,
+              itemBuilder: (_, i) => SizedBox(
+                    width: 100.0,
+                    height: 100.0,
+                    child: ElevatedButton(
+//                    padding: const EdgeInsets.all(8.0),
+                      onPressed: () {
+                        //路由跳转至详情页
+                        Application.router.navigateTo(_,
+                            "/report/group/detail?group_id=${groupList[i].id}");
+                      },
+                      child: Text(
+                        groupList[i].name.toString(),
+                        style: TextStyle(color: Colors.white, fontSize: 20.0),
+                      ),
+                      style: ButtonStyle(
+//                      backgroundColor: MaterialStateProperty.all<Color>(groupList[i].bg),
+                        backgroundColor:
+                            MaterialStateProperty.all<Color>(Colors.green),
+                      ),
+                    ),
+                  ))),
+    ],
+  );
+}
+
+// 首页Widget
+Widget _home() {
+  return Column(
+    mainAxisSize: MainAxisSize.min,
+    mainAxisAlignment: MainAxisAlignment.start,
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: <Widget>[
+      Consumer<ReportGroupProvider>(
+        // 使用Consumer获取ReportGroupProvider对象
+        builder: (_, ReportGroupProvider groupProvider, __) {
+          //获取分组列表数据
+          List<ReportGroupModel> groupList = groupProvider.groupList;
+          // 判断是否有数据
+          if (groupList.length > 0) {
+            return Flexible(
+              fit: FlexFit.loose,
+              child: _groupListWidget(groupList),
+            );
+          }
+          return Text("无数据");
+        },
+      )
+    ],
+  );
+}
+
+// 列表Widget
+Widget _list() {
+  return Column(
+    mainAxisSize: MainAxisSize.min,
+    mainAxisAlignment: MainAxisAlignment.start,
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: <Widget>[
+      Consumer<ReportGroupProvider>(
+        // 使用Consumer获取ReportGroupProvider对象
+        builder: (_, ReportGroupProvider groupProvider, __) {
+          //获取分组列表数据
+          List<ReportGroupModel> groupList = groupProvider.groupList;
+          // 判断是否有数据
+          if (groupList.length > 0) {
+            return Flexible(
+              fit: FlexFit.loose,
+              child: _groupListWidget(groupList),
+            );
+          }
+          return Text("无数据");
+        },
+      )
+    ],
+  );
+}
+
 class HomePage extends StatefulWidget {
   String userID = "123";
 
@@ -57,73 +149,43 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  // 当前选中的索引项
+  int _selectedIndex = 0;
+
+  // 导航栏按钮选中对应数据
+  List<Widget Function()> _widgetOptions = [
+    _home,
+    _home,
+    _home,
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text("人生就是一场梦醒"),
-        ),
-        body: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            Consumer<ReportGroupProvider>(
-              // 使用Consumer获取ReportGroupProvider对象
-              builder: (_, ReportGroupProvider groupProvider, __) {
-                //获取分组列表数据
-                List<ReportGroupModel> groupList = groupProvider.groupList;
-                // 判断是否有数据
-                if (groupList.length > 0) {
-                  return Flexible(
-                    fit: FlexFit.loose,
-                    child: _groupListWidget(groupList),
-                  );
-                }
-                return Text("无数据");
-              },
-            )
-          ],
-        ));
-  }
-
-  // 分组列表项
-  Widget _groupListWidget(List<ReportGroupModel> groupList) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: <Widget>[
-        Expanded(
-            child: GridView.builder(
-                padding: const EdgeInsets.all(10.0),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3,
-                    childAspectRatio: 1.0,
-                    crossAxisSpacing: 9.0,
-                    mainAxisSpacing: 9.0),
-                itemCount: groupList.length,
-                itemBuilder: (_, i) => SizedBox(
-                      width: 100.0,
-                      height: 100.0,
-                      child: ElevatedButton(
-//                    padding: const EdgeInsets.all(8.0),
-                        onPressed: () {
-                          //路由跳转至详情页
-                          Application.router.navigateTo(context,
-                              "/report/group/detail?group_id=${groupList[i].id}");
-                        },
-                        child: Text(
-                          groupList[i].name.toString(),
-                          style: TextStyle(color: Colors.white, fontSize: 20.0),
-                        ),
-                        style: ButtonStyle(
-//                      backgroundColor: MaterialStateProperty.all<Color>(groupList[i].bg),
-                          backgroundColor:
-                              MaterialStateProperty.all<Color>(Colors.green),
-                        ),
-                      ),
-                    ))),
-      ],
+      appBar: AppBar(
+        title: Text("人生就是一场梦醒"),
+      ),
+      body: _widgetOptions.elementAt(_selectedIndex)(),
+      bottomNavigationBar: BottomNavigationBar(
+        items: <BottomNavigationBarItem>[
+          BottomNavigationBarItem(icon: Icon(Icons.apps), label: "首页"),
+          BottomNavigationBarItem(icon: Icon(Icons.list), label: "列表"),
+        ],
+        currentIndex: _selectedIndex,
+        fixedColor: Colors.deepOrange, // 选中的tab的颜色
+        onTap: _onItemTapped,
+      ),
     );
   }
+
+  // 按下tab，设置索引为当前tab索引值
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
+
+
+
 }
