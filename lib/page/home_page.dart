@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyrefresh/easy_refresh.dart';
 import 'package:provider/provider.dart';
 import 'package:wake_up/model/report_group.dart';
+import 'package:wake_up/model/report_list.dart';
 import 'package:wake_up/provider/report_group_list.dart';
+import 'package:wake_up/provider/report_list.dart';
 import 'package:wake_up/router/application.dart';
 import 'package:wake_up/service/http_service.dart';
 
@@ -51,6 +53,22 @@ Widget _groupListWidget(List<ReportGroupModel> groupList) {
   );
 }
 
+Widget _reportListWidget(List<ReportModel> list) {
+  return ListView.builder(
+      padding: const EdgeInsets.all(10.0),
+      itemCount: list.length,
+      itemBuilder: (_, i) => Row(
+            children: [
+              Expanded(
+                  child: Text(
+                list[i].content,
+                style: TextStyle(fontWeight: FontWeight.w400, fontSize: 18),
+                textAlign: TextAlign.center,
+              )),
+            ],
+          ));
+}
+
 // 首页Widget
 Widget _home() {
   return Column(
@@ -84,16 +102,15 @@ Widget _list() {
     mainAxisAlignment: MainAxisAlignment.start,
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: <Widget>[
-      Consumer<ReportGroupProvider>(
-        // 使用Consumer获取ReportGroupProvider对象
-        builder: (_, ReportGroupProvider groupProvider, __) {
+      Consumer<ReportProvider>(
+        builder: (BuildContext context, ReportProvider provider, __) {
           //获取分组列表数据
-          List<ReportGroupModel> groupList = groupProvider.groupList;
+          List<ReportModel> list = provider.list;
           // 判断是否有数据
-          if (groupList.length > 0) {
+          if (list.length > 0) {
             return Flexible(
               fit: FlexFit.loose,
-              child: _groupListWidget(groupList),
+              child: _reportListWidget(list),
             );
           }
           return Text("无数据");
@@ -118,6 +135,7 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     // 首次进入页面，加载分组列表
     getReportGroupList(false);
+    getReportList(false);
   }
 
   GlobalKey<RefreshFooterState> footerKey = GlobalKey<RefreshFooterState>();
@@ -149,13 +167,31 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  void getReportList(bool isMore) async {
+    var url =
+        'http://' + Config.IP + ":" + Config.PORT + "/api/report/all";
+    var params = {"user_id": widget.userID, "page_no": 1, "page_size": 10};
+    print('user_id' + widget.userID);
+    await getRequest(url, params: params).then((value) {
+      var data = json.decode(value.toString());
+      print('report数据:::' + data.toString());
+      ReportListModel reportListModel = ReportListModel.fromJson(data);
+      if (isMore) {
+        Provider.of<ReportProvider>(context).addList(reportListModel.data);
+      } else {
+        Provider.of<ReportProvider>(context, listen: false).getList(
+            reportListModel.data);
+      }
+    });
+  }
+
   // 当前选中的索引项
   int _selectedIndex = 0;
 
   // 导航栏按钮选中对应数据
   List<Widget Function()> _widgetOptions = [
     _home,
-    _home,
+    _list,
     _home,
   ];
 
@@ -184,8 +220,4 @@ class _HomePageState extends State<HomePage> {
       _selectedIndex = index;
     });
   }
-
-
-
-
 }
