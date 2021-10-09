@@ -14,6 +14,9 @@ class Routes {
     // 定义反思详情路由Handler
     router.define('/rethink/detail', handler: rethinkDetailHandler);
     // 定义根路由Handler
-    router.define('/', handler: rootHandler);
+    router.define('/', handler: appHandler);
+    router.define('/app', handler: appHandler);
+    router.define('/report_group', handler: reportGroupHandler);
+    router.define('/report_list', handler: reportListHandler);
   }
 }
