@@ -2,16 +2,16 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:wake_up/model/base_resp.dart';
 import 'package:wake_up/model/report_group.dart';
 import 'package:wake_up/provider/report_group_list.dart';
-import 'package:wake_up/router/application.dart';
 import 'package:wake_up/service/http_service.dart';
 
 import '../conf/configure.dart';
 import 'button.dart';
 
 // 分组列表项
-Widget _groupListWidget(List<ReportGroupModel> groupList) {
+Widget _groupListWidget(String userID, List<ReportGroupModel> groupList) {
   return Column(
     mainAxisAlignment: MainAxisAlignment.start,
     crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -31,9 +31,8 @@ Widget _groupListWidget(List<ReportGroupModel> groupList) {
                     child: ElevatedButton(
 //                    padding: const EdgeInsets.all(8.0),
                       onPressed: () {
-                        //路由跳转至详情页
-                        Application.router.navigateTo(_,
-                            "/report/group/detail?group_id=${groupList[i].id}");
+                        // 增加report
+                        addReport(userID, groupList[i].id);
                       },
                       child: Text(
                         groupList[i].name.toString(),
@@ -108,7 +107,7 @@ class _ReportGroupPageState extends State<ReportGroupPage> {
             if (groupList.length > 0) {
               return Flexible(
                 fit: FlexFit.loose,
-                child: _groupListWidget(groupList),
+                child: _groupListWidget(widget.userID, groupList),
               );
             }
             return Text("无数据");
@@ -117,4 +116,19 @@ class _ReportGroupPageState extends State<ReportGroupPage> {
       ],
     );
   }
+}
+
+void addReport(String userID, String groupID) async {
+  var url = 'http://' + Config.IP + ":" + Config.PORT + "/api/report";
+  var params = {
+    "user_id": userID,
+    "group_id": groupID,
+  };
+  await postRequest(url, body: params).then((value) {
+    var data = json.decode(value.toString());
+    BaseRspModel respModel = BaseRspModel.fromJson(data);
+    if (!respModel.IsSuccess()) {
+      print("not success");
+    }
+  });
 }
