@@ -22,7 +22,7 @@ Future postRequest(url, {body}) async {
   try {
     Response response;
     Dio dio = Dio();
-    dio.options.contentType = 'application/x-www-form-urlencoded';
+    dio.options.contentType = 'application/json';
     response = await dio.post(url, data: body);
     // 成功返回
     if (response.statusCode == 200) {
