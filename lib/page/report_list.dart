@@ -8,8 +8,15 @@ import 'package:wake_up/model/report_list.dart';
 import 'package:wake_up/provider/report_list.dart';
 import 'package:wake_up/service/http_service.dart';
 
+import 'login.dart';
+
 class ReportListPage extends StatefulWidget {
-  String userID = "123";
+  late String authToken;
+
+  void initState() async {
+    User user = User();
+    authToken = await user.getAuthToken();
+  }
 
   @override
   _ReportListPageState createState() => new _ReportListPageState();
@@ -30,9 +37,9 @@ class _ReportListPageState extends State<ReportListPage> {
 
   void getReportList(bool isMore) async {
     var url = 'http://' + Config.IP + ":" + Config.PORT + "/api/report/all";
-    var params = {"user_id": widget.userID, "page_no": 1, "page_size": 10};
-    print('user_id' + widget.userID);
-    await getRequest(url, params: params).then((value) {
+    var params = {"page_no": 1, "page_size": 10};
+    await getRequest(url, params: params, authToken: widget.authToken)
+        .then((value) {
       var data = json.decode(value.toString());
       print('report数据:::' + data.toString());
       ReportListModel reportListModel = ReportListModel.fromJson(data);

@@ -7,7 +7,7 @@ class Routes {
   static void configureRoutes(FluroRouter router) {
     // 路径没有找到Handler
     router.notFoundHandler = Handler(
-        handlerFunc: (BuildContext context, Map<String, List<String>> params) {
+        handlerFunc: (BuildContext? context, Map<String, List<String>> params) {
       print('error::: router没有找到');
       return Text("not found router");
     });

@@ -8,10 +8,10 @@ import 'package:wake_up/provider/report_group_list.dart';
 import 'package:wake_up/service/http_service.dart';
 
 import '../conf/configure.dart';
-import 'button.dart';
+import 'login.dart';
 
 // 分组列表项
-Widget _groupListWidget(String userID, List<ReportGroupModel> groupList) {
+Widget _groupListWidget(String authToken, List<ReportGroupModel> groupList) {
   return Column(
     mainAxisAlignment: MainAxisAlignment.start,
     crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -32,7 +32,7 @@ Widget _groupListWidget(String userID, List<ReportGroupModel> groupList) {
 //                    padding: const EdgeInsets.all(8.0),
                       onPressed: () {
                         // 增加report
-                        addReport(userID, groupList[i].id);
+                        addReport(authToken, groupList[i].id);
                       },
                       child: Text(
                         groupList[i].name.toString(),
@@ -50,28 +50,21 @@ Widget _groupListWidget(String userID, List<ReportGroupModel> groupList) {
 }
 
 class ReportGroupPage extends StatefulWidget {
-  String userID = "123";
-
   @override
   _ReportGroupPageState createState() => new _ReportGroupPageState();
 }
 
 class _ReportGroupPageState extends State<ReportGroupPage> {
-  List<Button> buttonsList = [];
-
-  @override
-  void initState() {
-    super.initState();
-    // 首次进入页面，加载分组列表
-    getReportGroupList(false);
-  }
-
-  void getReportGroupList(bool isMore) async {
+//  @override
+//  void initState() {
+//    // 首次进入页面，加载分组列表
+//    getReportGroupList(false);
+//  }
+//
+  void getReportGroupList(bool isMore, String authToken) async {
     var url =
         'http://' + Config.IP + ":" + Config.PORT + "/api/report/group/list";
-    var params = {"user_id": widget.userID};
-    print('user_id' + widget.userID);
-    await getRequest(url, params: params).then((value) {
+    await getRequest(url, authToken: authToken).then((value) {
       var data = json.decode(value.toString());
       print('详情数据:::' + data.toString());
       ReportGroupListModel reportGroupListModel =
@@ -90,41 +83,50 @@ class _ReportGroupPageState extends State<ReportGroupPage> {
     });
   }
 
-
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: <Widget>[
-        Consumer<ReportGroupProvider>(
-          // 使用Consumer获取ReportGroupProvider对象
-          builder: (_, ReportGroupProvider groupProvider, __) {
-            //获取分组列表数据
-            List<ReportGroupModel> groupList = groupProvider.groupList;
-            // 判断是否有数据
-            if (groupList.length > 0) {
-              return Flexible(
-                fit: FlexFit.loose,
-                child: _groupListWidget(widget.userID, groupList),
-              );
-            }
-            return Text("无数据");
-          },
-        )
-      ],
-    );
+    User user = User();
+    return FutureBuilder<String>(
+        future: user.login(),
+        builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                Consumer<ReportGroupProvider>(
+                  // 使用Consumer获取ReportGroupProvider对象
+                  builder: (_, ReportGroupProvider groupProvider, __) {
+                    getReportGroupList(false, snapshot.data.toString());
+                    //获取分组列表数据
+                    List<ReportGroupModel> groupList = groupProvider.groupList;
+                    // 判断是否有数据
+                    if (groupList.length > 0) {
+                      return Flexible(
+                        fit: FlexFit.loose,
+                        child: _groupListWidget(
+                            snapshot.data.toString(), groupList),
+                      );
+                    }
+                    return Text("无数据");
+                  },
+                )
+              ],
+            );
+          } else {
+            return Text("LOADING...");
+          }
+        });
   }
 }
 
-void addReport(String userID, String groupID) async {
+void addReport(String authToken, groupID) async {
   var url = 'http://' + Config.IP + ":" + Config.PORT + "/api/report";
   var params = {
-    "user_id": userID,
     "group_id": groupID,
   };
-  await postRequest(url, body: params).then((value) {
+  await postRequest(url, body: params, authToken: authToken).then((value) {
     var data = json.decode(value.toString());
     BaseRspModel respModel = BaseRspModel.fromJson(data);
     if (!respModel.IsSuccess()) {
