@@ -17,7 +17,7 @@ class _LoadingPage extends State<LoadingPage> {
     Future.delayed(Duration(seconds: 2), () {
       print('企业站启动');
       // 使用路由跳转至路由主界面
-      Application.router.navigateTo(context, "/app");
+      Application().Router().navigateTo(context, "/app");
     });
   }
 

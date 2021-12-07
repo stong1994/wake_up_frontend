@@ -11,7 +11,7 @@ import '../conf/configure.dart';
 import 'login.dart';
 
 // 分组列表项
-Widget _groupListWidget(String authToken, List<ReportGroupModel> groupList) {
+Widget _groupListWidget(List<ReportGroupModel> groupList) {
   return Column(
     mainAxisAlignment: MainAxisAlignment.start,
     crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -32,7 +32,7 @@ Widget _groupListWidget(String authToken, List<ReportGroupModel> groupList) {
 //                    padding: const EdgeInsets.all(8.0),
                       onPressed: () {
                         // 增加report
-                        addReport(authToken, groupList[i].id);
+                        addReport(groupList[i].id);
                       },
                       child: Text(
                         groupList[i].name.toString(),
@@ -55,15 +55,16 @@ class ReportGroupPage extends StatefulWidget {
 }
 
 class _ReportGroupPageState extends State<ReportGroupPage> {
-//  @override
-//  void initState() {
-//    // 首次进入页面，加载分组列表
-//    getReportGroupList(false);
-//  }
-//
-  void getReportGroupList(bool isMore, String authToken) async {
+  @override
+  void initState() {
+    // 首次进入页面，加载分组列表
+    getReportGroupList(false);
+  }
+
+  void getReportGroupList(bool isMore) async {
     var url =
         'http://' + Config.IP + ":" + Config.PORT + "/api/report/group/list";
+    String authToken = await User().getAuthToken();
     await getRequest(url, authToken: authToken).then((value) {
       var data = json.decode(value.toString());
       print('详情数据:::' + data.toString());
@@ -85,47 +86,37 @@ class _ReportGroupPageState extends State<ReportGroupPage> {
 
   @override
   Widget build(BuildContext context) {
-    User user = User();
-    return FutureBuilder<String>(
-        future: user.login(),
-        builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[
-                Consumer<ReportGroupProvider>(
-                  // 使用Consumer获取ReportGroupProvider对象
-                  builder: (_, ReportGroupProvider groupProvider, __) {
-                    getReportGroupList(false, snapshot.data.toString());
-                    //获取分组列表数据
-                    List<ReportGroupModel> groupList = groupProvider.groupList;
-                    // 判断是否有数据
-                    if (groupList.length > 0) {
-                      return Flexible(
-                        fit: FlexFit.loose,
-                        child: _groupListWidget(
-                            snapshot.data.toString(), groupList),
-                      );
-                    }
-                    return Text("无数据");
-                  },
-                )
-              ],
-            );
-          } else {
-            return Text("LOADING...");
-          }
-        });
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        Consumer<ReportGroupProvider>(
+          // 使用Consumer获取ReportGroupProvider对象
+          builder: (_, ReportGroupProvider groupProvider, __) {
+            //获取分组列表数据
+            List<ReportGroupModel> groupList = groupProvider.groupList;
+            // 判断是否有数据
+            if (groupList.length > 0) {
+              return Flexible(
+                fit: FlexFit.loose,
+                child: _groupListWidget(groupList),
+              );
+            }
+            return Text("无数据");
+          },
+        )
+      ],
+    );
   }
 }
 
-void addReport(String authToken, groupID) async {
+void addReport(groupID) async {
   var url = 'http://' + Config.IP + ":" + Config.PORT + "/api/report";
   var params = {
     "group_id": groupID,
   };
+  String authToken = await User().getAuthToken();
   await postRequest(url, body: params, authToken: authToken).then((value) {
     var data = json.decode(value.toString());
     BaseRspModel respModel = BaseRspModel.fromJson(data);

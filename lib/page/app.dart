@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:wake_up/page/report_group.dart';
+import 'package:wake_up/page/report_button.dart';
 import 'package:wake_up/page/report_list.dart';
 
 // 主页面

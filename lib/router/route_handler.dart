@@ -1,7 +1,7 @@
 import 'package:fluro/fluro.dart';
 import 'package:flutter/material.dart';
 import 'package:wake_up/page/app.dart';
-import 'package:wake_up/page/report_group.dart';
+import 'package:wake_up/page/report_button.dart';
 import 'package:wake_up/page/report_list.dart';
 
 import '../page/rethink_detail.dart';

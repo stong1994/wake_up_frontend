@@ -5,7 +5,16 @@ import 'package:wake_up/conf/configure.dart';
 import 'package:wake_up/model/base_resp.dart';
 import 'package:wake_up/service/http_service.dart';
 
+// singleton
 class User {
+  User._privateConstructor();
+
+  static final User _instance = User._privateConstructor();
+
+  factory User() {
+    return _instance;
+  }
+
   static const authTokenKey = 'authToken';
 
   void saveAuthToken(String authToken) async {
