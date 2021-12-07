@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:wake_up/page/report_button.dart';
 import 'package:wake_up/page/report_list.dart';
 
+import 'add_group.dart';
+
 // 主页面
 class App extends StatefulWidget {
   @override
@@ -36,6 +38,32 @@ class AppState extends State<App> {
     return Scaffold(
       appBar: AppBar(
         title: Text('梦醒'),
+        actionsIconTheme:
+            IconThemeData(size: 30.0, color: Colors.white, opacity: 10.0),
+        actions: <Widget>[
+          Padding(
+              padding: EdgeInsets.only(right: 20.0),
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () {
+                  print("display");
+                  AddGroupButton().Display(context);
+                },
+                onTapCancel: () {
+                  print("hidden");
+                  AddGroupButton().Hidden();
+                },
+                child: Icon(
+                  Icons.add,
+                ),
+              )),
+          Padding(
+              padding: EdgeInsets.only(right: 20.0),
+              child: GestureDetector(
+                onTap: () {},
+                child: Icon(Icons.more_vert),
+              )),
+        ],
       ),
       // 底部导航按钮
       bottomNavigationBar: BottomNavigationBar(
